@@ -11,7 +11,7 @@ require('dotenv').config();
 
 const webSocket = require('./socket');
 const passportConfig = require('./passport');
-//   { sequelize } = require('./models');
+const { sequelize } = require('./models');
 
 const authRouter = require('./routes/auth');
 const roomRouter = require('./routes/room');
@@ -28,7 +28,7 @@ const sessionMiddleware = session({
   },
 });
 
-// sequelize.sync();
+sequelize.sync();
 passportConfig(passport);
 
 app.set('port', process.env.PORT || 5000);
