@@ -5,18 +5,11 @@ const { Room, Chat } = require('../models');
 
 const router = express.Router();
 
-router.post('/', async (req, res, next) => {
-    const { roomName, roomLimit, roomPwd } = req.body.data;
-
-    await Room.create({
-        name: roomName,
-        host: 'null',
-        limit: roomLimit,
-        password: roomPwd === '' ? null : roomPwd
-    })
-              .then(result => {
-                  console.log('result');
-                  res.send(result);
+router.get('/list', async (req, res, next) => {
+    await Room.findAll()
+              .then(rooms => { 
+                  console.log('rooms');
+                  res.send(rooms);
               })
               .catch(err => {
                   console.error(err);
@@ -24,11 +17,18 @@ router.post('/', async (req, res, next) => {
               });
 });
 
-router.get('/list', async (req, res, next) => {
-    await Room.findAll()
-              .then(rooms => { 
-                  console.log('rooms');
-                  res.send(rooms);
+router.post('/', async (req, res, next) => {
+    const { roomName, roomLimit, roomPwd } = req.body;
+
+    await Room.create({
+        name: roomName,
+        host: req.user,
+        limit: roomLimit,
+        password: roomPwd === '' ? null : roomPwd
+    })
+              .then(result => {
+                  console.log('result');
+                  res.send(result);
               })
               .catch(err => {
                   console.error(err);
@@ -66,7 +66,7 @@ router.get('/search', async (req, res, next) => {
               });
 });
 
-router.get('/delete/:id', async (req, res, next) => {
+router.delete('/:id', async (req, res, next) => {
     const { id } = req.params;
 
     await Room.destroy({ where: { id } });

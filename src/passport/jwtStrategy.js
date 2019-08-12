@@ -1,5 +1,5 @@
 const JWTStrategy = require('passport-jwt').Strategy;
-const ExtractJWT = require('passport-jwt').ExtractJWT;
+const ExtractJWT = require('passport-jwt').ExtractJwt;
 
 const { User } = require('../models');
 const { COOKIE_SECRET } = process.env;
@@ -7,7 +7,7 @@ const { COOKIE_SECRET } = process.env;
 module.exports = passport => {
     passport.use(
         new JWTStrategy({
-            jwtFromRequest: ExtractJWT.fromAuthHeaderWithSchema('JWT'),
+            jwtFromRequest: ExtractJWT.fromAuthHeaderWithScheme('JWT'),
             secretOrKey: COOKIE_SECRET
         },
         async (jwt_payload, done) => {
@@ -15,8 +15,10 @@ module.exports = passport => {
                 const exUser = await User.findOne({ where: { email: jwt_payload.email } });
 
                 if (exUser) {
+                    console.log('user found in db in passport')
                     done(null, exUser);
                 } else {
+                    console.log('user not found in db');
                     done(null, false);
                 }
             } catch (err) {

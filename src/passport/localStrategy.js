@@ -9,6 +9,7 @@ module.exports = passport => {
       {
         usernameField: 'email',
         passwordField: 'pwd',
+        session: true,
       },
       async (email, password, done) => {
         try {

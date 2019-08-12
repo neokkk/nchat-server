@@ -2,6 +2,7 @@
 
 const express = require('express');
 const flash = require('connect-flash');
+const cors = require('cors');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
@@ -16,8 +17,11 @@ const { sequelize } = require('./models');
 const app = express();
 const sessionMiddleware = session({
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   secret: process.env.COOKIE_SECRET,
+  cookie: {
+    httpOnly: true
+  }
 });
 
 sequelize.sync();
@@ -25,6 +29,17 @@ sequelize.sync();
 passportConfig(passport);
 app.set('port', process.env.PORT || 5000);
 
+// CORS
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, X-AUTHENTICATION, X-IP, Content-Type, Accept');
+//   res.header('Access-Control-Max-Age', 3600);
+//   res.header('Access-Control-Allow-Credentials', true);
+//   next();
+// });
+
+app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -34,22 +49,11 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
-
+// router
 const authRouter = require('./routes/auth');
 const roomRouter = require('./routes/room');
 const userRouter = require('./routes/user');
 
-// CORS
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, X-AUTHENTICATION, X-IP, Content-Type, Accept');
-  res.header('Access-Control-Max-Age', 3600);
-  res.header('Access-Control-Allow-Credentials', true);
-  next();
-});
-
-// router
 app.use('/auth', authRouter);
 app.use('/room', roomRouter);
 app.use('/user', userRouter);

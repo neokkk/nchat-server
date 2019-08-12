@@ -8,7 +8,7 @@ const { User } = require('../models');
 const { isLoggedIn, isNotLoggedIn } = require('./middlewares');
 
 router.post('/join', async (req, res, next) => {
-  const { nick, email, pwd } = req.body.data;
+  const { nick, email, pwd } = req.body;
   const hash = await bcrypt.hash(pwd, 12);
 
   await User.findOrCreate({ where: { email }, defaults: { nick, email, password: hash } })
@@ -40,28 +40,14 @@ router.post('/login', (req, res, next) => {
         next(loginError);
       }
 
-      console.log('req session');
-      console.log(req.session);
+      res.status(200).send({ user });
     });
-
-    res.redirect('http://localhost:3000');
   })(req, res, next);
 });
 
-router.get('/logout', isLoggedIn, (req, res) => {
+router.get('/logout', (req, res) => {
   req.logout();
   req.session.destroy();
-});
-
-router.post('/isLoggedIn', (req, res) => {
-  console.log('isLoggedIn?');
-  console.log(req.session);
-  if (req.isAuthenticated()) {
-    console.log('인증되었습니다.')
-    res.status(200).send({ user: req.user });
-  } else {
-    res.status(200).send({ user: null });
-  }
 });
 
 module.exports = router;
