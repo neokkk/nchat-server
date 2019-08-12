@@ -22,6 +22,11 @@ module.exports = (server, app, sessionMiddleware) => {
             socket.to(room).emit('new message', user );
         });
 
+        socket.on('leave', ({ room, user }) => {
+            socket.leave(room);
+            socket.to(room).emit('userLeave', `${user.name} left`);
+        });
+
         socket.on('disconnect', ({ room }) => {
             console.log('socket disconnected');
             socket.leave(room);

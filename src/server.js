@@ -1,18 +1,17 @@
-import 'babel-polyfill';
+// import 'babel-polyfill';
 
 const express = require('express');
 const flash = require('connect-flash');
 const morgan = require('morgan');
-// const cookieParser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const passport = require('passport');
 
 require('dotenv').config();
 
-// const webSocket = require('./socket');
+const webSocket = require('./socket');
 const passportConfig = require('./passport');
-// // const { sequelize } = require('./models');
-// ;
+const { sequelize } = require('./models');
 
 const app = express();
 const sessionMiddleware = session({
@@ -21,7 +20,7 @@ const sessionMiddleware = session({
   secret: process.env.COOKIE_SECRET,
 });
 
-// // sequelize.sync();
+sequelize.sync();
 
 passportConfig(passport);
 app.set('port', process.env.PORT || 5000);
@@ -29,7 +28,7 @@ app.set('port', process.env.PORT || 5000);
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-// app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(sessionMiddleware);
 app.use(flash());
 app.use(passport.initialize());
@@ -50,10 +49,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// router
 app.use('/auth', authRouter);
-// app.use('/room', roomRouter);
-// app.use('/user', userRouter);
+app.use('/room', roomRouter);
+app.use('/user', userRouter);
 
+// error handling
 app.use((req, res, next) => {
   const error = new Error('Not found');
   error.status = 404;
@@ -70,4 +71,4 @@ const server = app.listen(app.get('port'), () => {
   console.log(app.get('port'), '번 포트에서 대기중');
 });
 
-// webSocket(server, app, sessionMiddleware);
+webSocket(server, app, sessionMiddleware);

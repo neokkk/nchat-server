@@ -36,7 +36,7 @@ router.get('/list', async (req, res, next) => {
               });
 });
 
-router.post('/:id/chat', async (req, res, next) => {
+router.post('/:id/chat', async (req, res) => {
     const { input } = req.body.data,
           { id } = req.params;
 
@@ -44,6 +44,32 @@ router.post('/:id/chat', async (req, res, next) => {
         chat: input,
         roomId: id,
     });
+});
+
+router.get('/search', async (req, res, next) => {
+    const { query } = req;
+
+    await Room.findAll({
+        where: { 
+            name: {
+                [sequelize.Op.like]: `%${query}%`
+            }
+        }
+    })
+              .then(result => {
+                 console.log('search room');
+                 console.log(result);
+              })
+              .catch(err => {
+                 console.error(err);
+                 next(err);
+              });
+});
+
+router.get('/delete/:id', async (req, res, next) => {
+    const { id } = req.params;
+
+    await Room.destroy({ where: { id } });
 });
 
 module.exports = router;
