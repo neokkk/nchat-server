@@ -1,26 +1,25 @@
-// import 'babel-polyfill';
-
-const express = require('express');
-const flash = require('connect-flash');
-const cors = require('cors');
-const morgan = require('morgan');
-const cookieParser = require('cookie-parser');
-const session = require('express-session');
-const passport = require('passport');
+const express = require('express'),
+      cors = require('cors'),
+      morgan = require('morgan'),
+      cookieParser = require('cookie-parser'),
+      session = require('express-session'),
+      passport = require('passport');
 
 require('dotenv').config();
 
-const webSocket = require('./socket');
-const passportConfig = require('./passport');
+const webSocket = require('./socket'),
+      passportConfig = require('./passport');
+
 const { sequelize } = require('./models');
 
 const app = express();
 const sessionMiddleware = session({
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   secret: process.env.COOKIE_SECRET,
   cookie: {
-    httpOnly: true
+    httpOnly: true,
+    secure: false
   }
 });
 
@@ -29,42 +28,32 @@ sequelize.sync();
 passportConfig(passport);
 app.set('port', process.env.PORT || 5000);
 
-// CORS
-// app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-//   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, X-AUTHENTICATION, X-IP, Content-Type, Accept');
-//   res.header('Access-Control-Max-Age', 3600);
-//   res.header('Access-Control-Allow-Credentials', true);
-//   next();
-// });
-
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(sessionMiddleware);
-app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
 // router
-const authRouter = require('./routes/auth');
-const roomRouter = require('./routes/room');
-const userRouter = require('./routes/user');
+const authRouter = require('./routes/auth'),
+      roomRouter = require('./routes/room'),
+      userRouter = require('./routes/user');
 
 app.use('/auth', authRouter);
 app.use('/room', roomRouter);
 app.use('/user', userRouter);
 
-// error handling
+// 404 error handling
 app.use((req, res, next) => {
   const error = new Error('Not found');
   error.status = 404;
   next(error);
 });
 
+// 500 server error handling
 app.use((err, req, res, next) => {
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

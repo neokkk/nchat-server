@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => (
     sequelize.define('chat', {
-        chat: {
+        message: {
             type: DataTypes.STRING(),
             allowNull: true,
         },

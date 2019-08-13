@@ -11,25 +11,29 @@ module.exports = (server, app, sessionMiddleware) => {
     });
 
     io.on('connection', socket => {
+        let userCount = 0;
         console.log('socket connected!');
         
-        socket.on('join', ({ room, user }) => {
+        socket.on('join', ({ user, room }) => {
             socket.join(room);
-            socket.to(room).emit('userJoin', `${user.name} joined`);
+            userCount++;
+            socket.to(room).emit('userJoin', `${user} 님이 입장하였습니다.`);
         });
 
-        socket.on('message', ({ room, user }) => {
+        socket.on('message', ({ user, room }) => {
             socket.to(room).emit('new message', user );
-        });
-
-        socket.on('leave', ({ room, user }) => {
-            socket.leave(room);
-            socket.to(room).emit('userLeave', `${user.name} left`);
         });
 
         socket.on('disconnect', ({ room }) => {
             console.log('socket disconnected');
             socket.leave(room);
+            userCount--;
+
+            if (userCount === 0) {
+                axios.delete(`/room/${id}`);
+            } else {
+                socket.to(room).emit('exit', `${user} 님이 퇴장하였습니다.`);
+            }
         });
     });
 }

@@ -1,7 +1,7 @@
-const express = require('express');
+const express = require('express'),
+      sequelize = require('sequelize');
 
 const { Room, Chat } = require('../models');
-// const { isLoggedIn } = require('./middlewares');
 
 const router = express.Router();
 
@@ -18,16 +18,16 @@ router.get('/list', async (req, res, next) => {
 });
 
 router.post('/', async (req, res, next) => {
-    const { roomName, roomLimit, roomPwd } = req.body;
+    const { roomName, roomSubname, roomLimit, roomPwd, user } = req.body;
 
     await Room.create({
         name: roomName,
-        host: req.user,
+        subname: roomSubname,
+        host: user.nick,
         limit: roomLimit,
         password: roomPwd === '' ? null : roomPwd
     })
               .then(result => {
-                  console.log('result');
                   res.send(result);
               })
               .catch(err => {
@@ -37,33 +37,34 @@ router.post('/', async (req, res, next) => {
 });
 
 router.post('/:id/chat', async (req, res) => {
-    const { input } = req.body.data,
+    const { user, input } = req.body,
           { id } = req.params;
 
     await Chat.create({
-        chat: input,
+        message: input,
         roomId: id,
+        userId: user.id
     });
 });
 
 router.get('/search', async (req, res, next) => {
-    const { query } = req;
+    const { query } = req.query;
+    console.log('query');
+    console.log(query);
 
-    await Room.findAll({
-        where: { 
-            name: {
-                [sequelize.Op.like]: `%${query}%`
+    await Room
+        .findAll({
+            where: { 
+                name: { [sequelize.Op.like]: `%${query}%` }
             }
-        }
-    })
-              .then(result => {
-                 console.log('search room');
-                 console.log(result);
-              })
-              .catch(err => {
-                 console.error(err);
-                 next(err);
-              });
+        })
+        .then(result => {
+            res.send(result);
+        })
+        .catch(err => {
+            console.error(err);
+            next(err);
+        });
 });
 
 router.delete('/:id', async (req, res, next) => {
