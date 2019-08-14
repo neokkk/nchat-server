@@ -1,3 +1,5 @@
+import 'babel-polyfill';
+
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcrypt');
 
