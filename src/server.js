@@ -39,12 +39,10 @@ app.use(passport.session());
 
 // router
 const authRouter = require('./routes/auth'),
-      roomRouter = require('./routes/room'),
-      userRouter = require('./routes/user');
+      roomRouter = require('./routes/room');
 
 app.use('/auth', authRouter);
 app.use('/room', roomRouter);
-app.use('/user', userRouter);
 
 // 404 error handling
 app.use((req, res, next) => {

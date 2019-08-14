@@ -6,21 +6,29 @@ const router = express.Router();
 
 const { User } = require('../models');
 
+// join
 router.post('/join', async (req, res, next) => {
   const { nick, email, pwd } = req.body;
-  
-  const hash = await bcrypt.hash(pwd, 12);
 
-  await User.findOrCreate({ where: { email }, defaults: { nick, email, password: hash } })
-            .spread((user, created) => {
-                if (created) {
-                    res.send({ message: '회원가입되었습니다.' });
-                } else {
-                    res.send({ message: '이미 존재하는 회원입니다.' });
-                }
-            });
+  try {
+    const hash = await bcrypt.hash(pwd, 12);
+  
+    await User
+      .findOrCreate({ where: { email }, defaults: { nick, email, password: hash } })
+      .spread((user, created) => {
+          if (created) {
+              res.send({ message: '회원가입되었습니다.' });
+          } else {
+              res.send({ message: '이미 존재하는 회원입니다.' });
+          }
+      });
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
 });
 
+// local login
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', (authError, user) => {
 
@@ -44,6 +52,7 @@ router.post('/login', (req, res, next) => {
   })(req, res, next);
 });
 
+// logout
 router.get('/logout', (req, res) => {
   req.logout();
   req.session.destroy();

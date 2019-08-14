@@ -5,72 +5,97 @@ const { Room, Chat } = require('../models');
 
 const router = express.Router();
 
+// get list
 router.get('/list', async (req, res, next) => {
-    await Room.findAll()
-              .then(rooms => { 
-                  console.log('rooms');
-                  res.send(rooms);
-              })
-              .catch(err => {
-                  console.error(err);
-                  next(err);
-              });
+    try {
+        await Room.findAll()
+                  .then(rooms => { 
+                      console.log('rooms');
+                      res.send(rooms);
+                  })
+                  .catch(err => {
+                      console.error(err);
+                      next(err);
+                  });
+    } catch (err) {
+        console.error(err);
+        next(err);
+    }
 });
 
+// create room
 router.post('/', async (req, res, next) => {
     const { roomName, roomSubname, roomLimit, roomPwd, user } = req.body;
 
-    await Room.create({
-        name: roomName,
-        subname: roomSubname,
-        host: user.nick,
-        limit: roomLimit,
-        password: roomPwd === '' ? null : roomPwd
-    })
-              .then(result => {
-                  res.send(result);
-              })
-              .catch(err => {
-                  console.error(err);
-                  next(err);
-              });
+    try {
+        await Room
+            .create({
+                name: roomName,
+                subname: roomSubname,
+                host: user.nick,
+                limit: roomLimit,
+                password: roomPwd === '' ? null : roomPwd
+            });
+    } catch (err) {
+        console.error(err);
+        next(err);
+    }
 });
 
-router.post('/:id/chat', async (req, res) => {
+// create chat
+router.post('/:id/chat', async (req, res, next) => {
     const { user, input } = req.body,
           { id } = req.params;
 
-    await Chat.create({
-        message: input,
-        roomId: id,
-        userId: user.id
-    });
+    try {
+        await Chat
+            .create({
+                message: input,
+                roomId: id,
+                userId: user.id
+            });
+    } catch (err) {
+        console.error(err);
+        next(err);
+    }
+
+    res.status(200).json({ success: true });
 });
 
+// search room
 router.get('/search', async (req, res, next) => {
     const { query } = req.query;
-    console.log('query');
-    console.log(query);
 
-    await Room
-        .findAll({
-            where: { 
-                name: { [sequelize.Op.like]: `%${query}%` }
-            }
-        })
-        .then(result => {
-            res.send(result);
-        })
-        .catch(err => {
-            console.error(err);
-            next(err);
-        });
+    try {
+        await Room
+            .findAll({
+                where: { 
+                    name: { [sequelize.Op.like]: `%${query}%` }
+                }
+            })
+            .then(result => {
+                res.send(result);
+            })
+            .catch(err => {
+                console.error(err);
+                next(err);
+            });
+    } catch (err) {
+        console.error(err);
+        next(err);
+    }
 });
 
+// delete room
 router.delete('/:id', async (req, res, next) => {
     const { id } = req.params;
 
-    await Room.destroy({ where: { id } });
+    try {
+        await Room.destroy({ where: { id } });
+    } catch (err) {
+        console.error(err);
+        next(err);
+    }
 });
 
 module.exports = router;
