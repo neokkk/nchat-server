@@ -6,40 +6,34 @@ const { Room, Chat } = require('../models');
 const router = express.Router();
 
 // get list
-router.get('/list', async (req, res, next) => {
-    try {
-        await Room.findAll()
-                  .then(rooms => { 
-                      console.log('rooms');
-                      res.send(rooms);
-                  })
-                  .catch(err => {
-                      console.error(err);
-                      next(err);
-                  });
-    } catch (err) {
-        console.error(err);
-        next(err);
-    }
+router.get('/list', (req, res, next) => {
+    Room.findAll()
+        .then(rooms => { 
+            console.log('rooms');
+            res.send(rooms);
+        })
+        .catch(err => {
+            console.error(err);
+            next(err);
+        });
 });
 
 // create room
-router.post('/', async (req, res, next) => {
+router.post('/', (req, res, next) => {
     const { roomName, roomSubname, roomLimit, roomPwd, user } = req.body;
 
-    try {
-        await Room
-            .create({
-                name: roomName,
-                subname: roomSubname,
-                host: user.nick,
-                limit: roomLimit,
-                password: roomPwd === '' ? null : roomPwd
-            });
-    } catch (err) {
-        console.error(err);
-        next(err);
-    }
+    Room.create({
+            name: roomName,
+            subname: roomSubname,
+            host: user.nick,
+            limit: roomLimit,
+            password: roomPwd === '' ? null : roomPwd
+        })
+        .then(result => {
+            console.log('create room result');
+            console.log(result);
+            res.send(result);
+        });
 });
 
 // create chat
