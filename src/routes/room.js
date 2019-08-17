@@ -33,63 +33,51 @@ router.post('/', (req, res, next) => {
             console.log('create room result');
             console.log(result);
             res.send(result);
+        })
+        .catch(err => {
+            console.error(err);
+            next(err);
         });
 });
 
 // create chat
-router.post('/:id/chat', async (req, res, next) => {
+router.post('/:id/chat', (req, res) => {
     const { user, input } = req.body,
           { id } = req.params;
 
-    try {
-        await Chat
-            .create({
-                message: input,
-                roomId: id,
-                userId: user.id
-            });
-    } catch (err) {
-        console.error(err);
-        next(err);
-    }
+    Chat.create({
+        message: input,
+        roomId: id,
+        userId: user.id
+    });
 
     res.status(200).json({ success: true });
 });
 
 // search room
-router.get('/search', async (req, res, next) => {
+router.get('/search', (req, res, next) => {
     const { query } = req.query;
 
-    try {
-        await Room
-            .findAll({
-                where: { 
-                    name: { [sequelize.Op.like]: `%${query}%` }
-                }
-            })
-            .then(result => {
-                res.send(result);
-            })
-            .catch(err => {
-                console.error(err);
-                next(err);
-            });
-    } catch (err) {
-        console.error(err);
-        next(err);
-    }
+    Room
+        .findAll({
+            where: { 
+                name: { [sequelize.Op.like]: `%${query}%` }
+            }
+        })
+        .then(result => {
+            res.send(result);
+        })
+        .catch(err => {
+            console.error(err);
+            next(err);
+        });
 });
 
 // delete room
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', (req, res, next) => {
     const { id } = req.params;
 
-    try {
-        await Room.destroy({ where: { id } });
-    } catch (err) {
-        console.error(err);
-        next(err);
-    }
+    Room.destroy({ where: { id } });
 });
 
 module.exports = router;

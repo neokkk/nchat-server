@@ -1,7 +1,7 @@
 const SocketIO = require('socket.io'),
       axios = require('axios');
 
-      const { Room } = require('./models');
+const { Room } = require('./models');
 
 let userCount = 0;
 
@@ -48,6 +48,7 @@ module.exports = (server, app, sessionMiddleware) => {
 
         function leave() {
             if (!socket.currentUser) return;
+            
             socket.leave(socket.myRoom);
             userCount--;
  
