@@ -17,13 +17,11 @@ module.exports = (sequelize, DataTypes) => (
             allowNull: false,
             defaultValue: 2,
         },
-        createdAt: {
-            type: DataTypes.DATE,
-            allowNull: false,
-            defaultValue: sequelize.literal('now()'),
+        password: {
+            type: DataTypes.STRING(30),
+            allowNull: true,
         }
     }, {
         timestamps: true,
-        paranoid: true,
     })
 )

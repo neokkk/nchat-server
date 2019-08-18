@@ -3,14 +3,8 @@ module.exports = (sequelize, DataTypes) => (
         message: {
             type: DataTypes.STRING(),
             allowNull: true,
-        },
-        createdAt: {
-            type: DataTypes.DATE(),
-            allowNull: false,
-            defaultValue: sequelize.literal('now()'),
         }
     }, {
         timestamps: true,
-        paranoid: true,
     })
 )

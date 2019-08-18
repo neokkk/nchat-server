@@ -8,9 +8,8 @@ const router = express.Router();
 // get list
 router.get('/list', (req, res, next) => {
     Room.findAll()
-        .then(rooms => { 
-            console.log('rooms');
-            res.send(rooms);
+        .then(result => { 
+            res.send(result);
         })
         .catch(err => {
             console.error(err);
@@ -30,8 +29,6 @@ router.post('/', (req, res, next) => {
             password: roomPwd === '' ? null : roomPwd
         })
         .then(result => {
-            console.log('create room result');
-            console.log(result);
             res.send(result);
         })
         .catch(err => {
@@ -46,12 +43,18 @@ router.post('/:id/chat', (req, res) => {
           { id } = req.params;
 
     Chat.create({
-        message: input,
-        roomId: id,
-        userId: user.id
-    });
+            message: input,
+            roomId: id,
+            userId: user.id
+        })
+        .then(result => {
+            res.send(result);
+        })
+        .catch(err => {
+            console.error(err);
+            next(err);
+        });
 
-    res.status(200).json({ success: true });
 });
 
 // search room
@@ -77,7 +80,9 @@ router.get('/search', (req, res, next) => {
 router.delete('/:id', (req, res, next) => {
     const { id } = req.params;
 
-    Room.destroy({ where: { id } });
+    setTimeout(() => {
+        Room.destroy({ where: { id } });
+    }, 3000);
 });
 
 module.exports = router;
