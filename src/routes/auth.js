@@ -1,6 +1,6 @@
-const express = require('express');
-const passport = require('passport');
-const bcrypt = require('bcrypt');
+const express = require('express'),
+      passport = require('passport'),
+      bcrypt = require('bcrypt');
 
 const router = express.Router();
 
@@ -56,6 +56,27 @@ router.post('/login', (req, res, next) => {
 router.get('/logout', (req, res) => {
   req.logout();
   req.session.destroy();
+});
+
+// google login
+router.get('/google', passport.authenticate('google'));
+
+// google login callback
+router.get('/google/callback', passport.authenticate('google', {
+  successRedirect: '/google/callback/success',
+  failureRedirect: '/google/callback/failure'
+}));
+
+// google login success 
+router.get('/google/callback/success', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.send({ user: req.user });
+  }
+});
+
+// google login failure
+router.get('/google/callback/failure', (req, res) => {
+  res.send({ message: '구글 로그인에 실패하였습니다.' });
 });
 
 module.exports = router;

@@ -1,7 +1,7 @@
 // import 'babel-polyfill';
 
-const LocalStrategy = require('passport-local').Strategy;
-const bcrypt = require('bcrypt');
+const LocalStrategy = require('passport-local').Strategy,
+      bcrypt = require('bcrypt');
 
 const { User } = require('../models');
 
@@ -11,7 +11,6 @@ module.exports = passport => {
       {
         usernameField: 'email',
         passwordField: 'pwd',
-        session: true,
       },
       async (email, password, done) => {
         try {

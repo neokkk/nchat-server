@@ -13,13 +13,14 @@ const webSocket = require('./socket'),
 const { sequelize } = require('./models');
 
 const app = express();
+
 const sessionMiddleware = session({
-  resave: false,
-  saveUninitialized: false,
+  resave: true,
+  saveUninitialized: true,
   secret: process.env.COOKIE_SECRET,
   cookie: {
     httpOnly: true,
-    secure: false
+    secure: false,
   }
 });
 
