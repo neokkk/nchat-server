@@ -16,6 +16,11 @@ module.exports = (server, app, sessionMiddleware) => {
 
     io.on('connection', socket => {
         console.log('socket connected!');
+
+        socket.on('initialUserCount', () => {
+            console.log('initial user count ?');
+            io.emit('userCountChanged', { userCount, roomId: socket.myRoom });
+        });
         
         // 채팅방 입장
         socket.on('join', ({ user, room }) => {
@@ -34,7 +39,7 @@ module.exports = (server, app, sessionMiddleware) => {
             console.log('on message');
             console.log(user);
             console.log(room);
-            socket.to(room).emit('new message', { user, room } );
+            socket.to(room.id).emit('new message', { user, room } );
         });
 
         // 채팅방 퇴장

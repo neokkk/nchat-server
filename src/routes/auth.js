@@ -63,8 +63,8 @@ router.get('/google', passport.authenticate('google'));
 
 // google login callback
 router.get('/google/callback', passport.authenticate('google', {
-  successRedirect: '/google/callback/success',
-  failureRedirect: '/google/callback/failure'
+  successRedirect: 'http://localhost:3000',
+  failureRedirect: 'http://localhost:3000'
 }));
 
 // google login success 
