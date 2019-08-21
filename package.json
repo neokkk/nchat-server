@@ -6,7 +6,7 @@
   "scripts": {
     "build": "babel ./src -d dist",
     "start": "npm run build && npm run serve",
-    "serve": "babel-node -r dotenv/config dist/server.js",
+    "serve": "node -r dotenv/config dist/server.js",
     "watch": "./node_modules/.bin/nodemon --watch src --exec npm start"
   },
   "repository": {
