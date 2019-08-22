@@ -58,25 +58,4 @@ router.get('/logout', (req, res) => {
   req.session.destroy();
 });
 
-// google login
-router.get('/google', passport.authenticate('google'));
-
-// google login callback
-router.get('/google/callback', passport.authenticate('google', {
-  successRedirect: 'http://localhost:3000',
-  failureRedirect: 'http://localhost:3000'
-}));
-
-// google login success 
-router.get('/google/callback/success', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.send({ user: req.user });
-  }
-});
-
-// google login failure
-router.get('/google/callback/failure', (req, res) => {
-  res.send({ message: '구글 로그인에 실패하였습니다.' });
-});
-
 module.exports = router;
