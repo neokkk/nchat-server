@@ -1,6 +1,6 @@
 const express = require('express'),
-      passport = require('passport'),
-      bcrypt = require('bcrypt');
+      bcrypt = require('bcrypt')
+      jwt = require('jsonwebtoken');
 
 const router = express.Router();
 
@@ -13,7 +13,7 @@ router.post('/join', async (req, res, next) => {
   try {
     const hash = await bcrypt.hash(pwd, 12);
   
-    await User
+    User
       .findOrCreate({ where: { email }, defaults: { nick, email, password: hash } })
       .spread((user, created) => {
           if (created) {
@@ -29,33 +29,37 @@ router.post('/join', async (req, res, next) => {
 });
 
 // local login
-router.post('/login', (req, res, next) => {
-  passport.authenticate('local', (authError, user) => {
+router.post('/login', async (req, res, next) => {
+  const { email, pwd } = req.body,
+        secret = process.env.JWT_SECRET;
 
-    if (authError) {
-      console.error(authError);
-      next(authError);
-    }
+  try {
+    const exUser = await User.findOne({ where: { email } });
+    
+    if (exUser) { // user가 존재하면
+      const validation = await bcrypt.compare(pwd, exUser.password);
 
-    if (!user) {
-      res.send({ message: '로그인에 실패하였습니다.' });
-    }
-
-    req.login(user, loginError => {
-      if (loginError) {
-        console.error(loginError);
-        next(loginError)
+      if (validation) { // 비밀번호가 맞으면
+        const token = jwt.sign({ id: exUser.id, nick: exUser.nick }, secret, { expiresIn: '1d' });
+  
+        res.cookie('token', token);
+        res.send({ user: exUser, token });
+      } else {
+        res.send({ message: '로그인에 실패하였습니다.' });
       }
-
-      res.send({ user });
-    });
-  })(req, res, next);
+    } else {
+      res.send({ message: '로그인에 실패햐였습니다.' });
+    }
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
 });
 
 // logout
 router.get('/logout', (req, res) => {
-  req.logout();
-  req.session.destroy();
+  res.clearCookie('token');
+  res.send({ message: '로그아웃 되었습니다.' });
 });
 
 module.exports = router;

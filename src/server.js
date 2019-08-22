@@ -2,14 +2,11 @@ const express = require('express'),
       cors = require('cors'),
       morgan = require('morgan'),
       cookieParser = require('cookie-parser'),
-      session = require('express-session'),
-      passport = require('passport');
+      session = require('express-session');
 
 require('dotenv').config();
 
-const webSocket = require('./socket'),
-      passportConfig = require('./passport');
-
+const webSocket = require('./socket');
 const { sequelize } = require('./models');
 
 const app = express();
@@ -26,7 +23,6 @@ const sessionMiddleware = session({
 
 sequelize.sync();
 
-passportConfig(passport);
 app.set('port', process.env.PORT || 5000);
 
 app.use(cors());
@@ -35,8 +31,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(sessionMiddleware);
-app.use(passport.initialize());
-app.use(passport.session());
 
 // router
 const authRouter = require('./routes/auth'),

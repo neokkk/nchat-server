@@ -2,14 +2,12 @@ const express = require('express'),
       sequelize = require('sequelize');
 
 const { Room, Chat } = require('../models');
+const { isLoggedIn } = require('./middlewares');
 
 const router = express.Router();
 
 // get list
 router.get('/list', (req, res, next) => {
-    console.log('req.sesion');
-    console.log(req.session);
-    
     Room.findAll()
         .then(result => { 
             res.send(result);

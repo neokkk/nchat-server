@@ -15,10 +15,7 @@ module.exports = (server, app, sessionMiddleware) => {
     });
 
     io.on('connection', socket => {
-        console.log('socket connected!');
-
         socket.on('initialUserCount', () => {
-            console.log('initial user count ?');
             io.emit('userCountChanged', { userCount, roomId: socket.myRoom });
         });
         
@@ -27,18 +24,15 @@ module.exports = (server, app, sessionMiddleware) => {
             socket.myRoom = room;
             socket.currentUser = user;
             socket.join(room);
+            
             userCount++;
 
-            console.log('userCount : ', userCount);
             socket.to(room).emit('userJoin', `${user} 님이 입장하였습니다.`);
             io.emit('userCountChanged', { userCount, roomId: socket.myRoom });
         });
 
         // 메세지 작성
         socket.on('message', ({ user, room }) => {
-            console.log('on message');
-            console.log(user);
-            console.log(room);
             socket.to(room.id).emit('new message', { user, room } );
         });
 
@@ -48,9 +42,7 @@ module.exports = (server, app, sessionMiddleware) => {
         })
 
         socket.on('disconnect', () => {
-            console.log('socket disconnected');
             leave();
-            console.log('userCount: ', userCount);
         });
 
         function leave() {
