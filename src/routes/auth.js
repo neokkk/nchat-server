@@ -1,5 +1,5 @@
 const express = require('express'),
-      bcrypt = require('bcrypt')
+      bcrypt = require('bcrypt'),
       jwt = require('jsonwebtoken');
 
 const router = express.Router();
@@ -42,7 +42,6 @@ router.post('/login', async (req, res, next) => {
       if (validation) { // 비밀번호가 맞으면
         const token = jwt.sign({ id: exUser.id, nick: exUser.nick }, secret, { expiresIn: '1d' });
   
-        res.cookie('token', token);
         res.send({ user: exUser, token });
       } else {
         res.send({ message: '로그인에 실패하였습니다.' });
@@ -58,7 +57,6 @@ router.post('/login', async (req, res, next) => {
 
 // logout
 router.get('/logout', (req, res) => {
-  res.clearCookie('token');
   res.send({ message: '로그아웃 되었습니다.' });
 });
 
