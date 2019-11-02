@@ -45,7 +45,7 @@
     "jsonwebtoken": "^8.5.1",
     "mariadb": "^2.1.0",
     "morgan": "^1.9.1",
-    "sequelize": "^5.11.0",
+    "sequelize": "^5.15.1",
     "socket.io": "^2.2.0"
   }
 }
